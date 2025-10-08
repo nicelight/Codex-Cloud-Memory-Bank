@@ -1,42 +1,74 @@
 # Codex Cloud Agent + Memory Bank (optimized)
 
-Агент для Codex Cloud в стиле SDD: **Contracts → Tests → Code → ADR → Progress**,
-с расширенным мемори-банком `.memory/` и строгими правилами автономности (0/1/2).
+Агент для Codex Cloud в стиле SDD: **Contracts → Tests → Code → ADR → Progress**, с расширенным мемори‑банком `.memory/` и строгими правилами автономности 0/1/2.
 
-## Дерево
-contracts/                 # Истина №1: OpenAPI/JSON Schema/интерфейсы
-  VERSION.json             # Версионирование контрактов (SemVer, дата, миграции)
-AGENTS.md                  # Правила для Codex (ядро + ссылки на плейбуки)
-.memory/
-  MISSION.md               # Миссия/ценность/границы (YAML front-matter)
-  CONTEXT.md               # Факты среды, команды, Deprecation policy
-  DECISIONS.md             # ADR-lite с front-matter (id/status/supersedes/…)
-  TASKS.md                 # Мини-канбан с id/owner/dates
-  PROGRESS.md              # Changelog (1 строка на событие) + front-matter
-  GLOSSARY.md              # Термины/соглашения
-  AUTONOMY.md              # Пороговые критерии 0/1/2 + CONSENT_WINDOW
-  USECASES.md              # 5–10 ключевых сценариев + acceptance criteria
-  REPORT_TEMPLATE.md       # Шаблон финального отчёта (текст)
-  REPORT_SCHEMA.json       # JSON-схема отчёта
-  INDEX.yaml               # Машиночитаемый индекс ADR/версий контрактов/дат
-  WORKLOG.md               # Черновой ход работ до checkpoint
-# LOCK файл создаётся динамически: .memory/LOCK.<taskId> (эфемерный)
+## Дерево проекта
 
-## Ключевые идеи
-- **Front-matter & INDEX** → детерминированное чтение памяти моделью.
-- **Автономность с порогами** → Codex знает, когда спрашивать у пользователя.
-- **SemVer + Deprecation policy** → управляемые изменения API.
-- **USECASES + Acceptance** → уменьшаем гадание и переинтерпретации.
-- **LOCK & WORKLOG** → без гонок и «дрейфа» канбана/прогресса.
-- **REPORT.json** → машиночитаемый дайджест для автоматических проверок/ботов.
+```text
+.
+├── contracts/
+│   └── VERSION.json
+├── AGENTS.md
+└── .memory/
+    ├── AUTONOMY.md
+    ├── CONTEXT.md
+    ├── DECISIONS.md
+    ├── GLOSSARY.md
+    ├── INDEX.yaml
+    ├── MISSION.md
+    ├── PROGRESS.md
+    ├── REPORT_SCHEMA.json
+    ├── REPORT_TEMPLATE.md
+    ├── TASKS.md
+    ├── USECASES.md
+    └── WORKLOG.md
+```
 
-## Базовый цикл
-1) Codex читает `AGENTS.md`, спрашивает автономность (0/1/2).  
-2) Читает `.memory/*`, `contracts/*`, действует по Contracts-first & TDD.  
-3) До checkpoint пишет шаги в `WORKLOG.md`; после checkpoint — синхронизирует `TASKS.md`/`PROGRESS.md`.  
-4) При конфликте ADR — помечает устаревший как `superseded`.  
-5) Перед PR/ответом — формирует отчёт: текст + `REPORT.json` по схеме.
+## Как это работает — кратко
 
-## PR политика (кратко)
-- Один PR — одна цель; unit+contract тесты зелёные; контракты/ADR/прогресс обновлены.
-- В описании PR: цель, влияние на API/данные, риски, план отката, миграции.
+1. Codex читает `AGENTS.md` и спрашивает степень автономности 0/1/2.
+2. Читает `.memory/*` и `contracts/*`, следует ритуалу **Contracts → Tests → Code**.
+3. Создаёт `LOCK.taskId`, ведёт черновик шагов в `WORKLOG.md` до checkpoint.
+4. Если меняются публичные интерфейсы — сначала правит `contracts/*` и версии в `contracts/VERSION.json` по SemVer.
+5. После checkpoint синхронизирует `TASKS.md`, `PROGRESS.md`, оформляет ADR в `DECISIONS.md`.
+6. Возвращает финальный ответ по шаблону `REPORT_TEMPLATE.md` и прикладывает `REPORT.json` по схеме `REPORT_SCHEMA.json`.
+
+## Mermaid диаграмма процесса
+
+```mermaid
+flowchart TB
+  A[Start] --> B[Ask autonomy 0-1-2]
+  B --> C[Read memory: MISSION - CONTEXT - TASKS - DECISIONS - USECASES]
+  C --> D[Read contracts and VERSION]
+  D --> E{LOCK exists}
+  E -- no --> F[Create LOCK for task]
+  E -- yes --> G[Write only to WORKLOG and stop sync]
+  F --> H[Work in WORKLOG]
+  H --> I{Trigger thresholds from AUTONOMY}
+  I -- yes --> J[Ask user for consent]
+  I -- no --> K[Proceed]
+  J --> K
+  K --> L[Update contracts first]
+  L --> M[Add - update tests]
+  M --> N[Change code minimal]
+  N --> O{Checkpoint passed}
+  O -- no --> H
+  O -- yes --> P[Sync TASKS and PROGRESS]
+  P --> Q[Add ADR if needed]
+  Q --> R[Generate REPORT text]
+  R --> S[Generate REPORT.json per schema]
+  S --> T[Remove LOCK]
+  T --> U[Done]
+```
+
+## Быстрый чек‑лист
+
+* Перед началом: спроси автономность, прочитай `.memory/*` и `contracts/*`.
+* Любые изменения публичных интерфейсов — сначала `contracts/*` и SemVer.
+* До checkpoint пиши только в `WORKLOG.md`; после — синхронизируй канбан и прогресс.
+* Всегда формируй финальный отчёт: текст + `REPORT.json`.
+
+## Политика PR (сверхкратко)
+
+* Один PR — одна цель; unit + contract тесты зелёные; контракты/ADR/прогресс обновлены.
+* В описании PR: цель, влияние на API и данные, риски, план отката, миграции.
