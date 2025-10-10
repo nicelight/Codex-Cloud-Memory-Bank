@@ -6,27 +6,24 @@
 
 ---
 
-## 0) Обязательный старт
-1. Спроси пользователя: **"Степень автономности (0,1,2)?"**  
-   - **2** — полная автономия.  
-   - **1** — согласовывай, если срабатывают пороги из `.memory/AUTONOMY.md`.  
-   - **0** — согласовывай почти всё (кроме мелких правок/простых тестов/безопасных проверок).  
-2. Если ответ не получен — **остановись** (см. CONSENT_WINDOW в `.memory/AUTONOMY.md`).
+## 0) Контроль автономности
+- Если в пользовательском запросе прямо указано «автономность 0» или «автономность 1», соблюдай соответствующие правила из `.memory/AUTONOMY.md`.
+- Во всех остальных случаях работай с автономностью **2** (полная автономия без дополнительного запроса).
 
 ## 1) Must-Read перед задачей
 Последовательность чтения:
 1) `.memory/MISSION.md` → зачем/ценность/scope.  
 2) `.memory/CONTEXT.md` → окружения, стек, команды, quality policy, Deprecation.  
-3) `.memory/TASKS.md` → активные задачи (запомни id/owner).  
-4) `.memory/DECISIONS.md` → ADR цепочка (учти `status/supersedes`).  
-5) `contracts/*` + `contracts/VERSION.json` → версия API и изменения.  
-6) `.memory/USECASES.md` → сценарии + acceptance criteria.  
-7) `.memory/INDEX.yaml` → быстрый контроль актуальности артефактов.
+3) `.memory/TASKS.md` → активные задачи (запомни id/owner).
+4) `.memory/ASKS.md` → история пользовательских запросов.
+5) `.memory/DECISIONS.md` → ADR цепочка (учти `status/supersedes`).
+6) `contracts/*` + `contracts/VERSION.json` → версия API и изменения.
+7) `.memory/USECASES.md` → сценарии + acceptance criteria.
+8) `.memory/INDEX.yaml` → быстрый контроль актуальности артефактов.
 
-## 2) LOCK и рабочий журнал
-- Перед изменениями создай **`.memory/LOCK.<taskId>`**. Если LOCK чужой — **не** редактируй канбан/прогресс/ADR; пиши **только** в `WORKLOG.md`.  
-- До checkpoint все шаги записывай в `.memory/WORKLOG.md` (черновик).  
-- После прохождения checkpoint (см. ниже) — синхронизируй `.memory/TASKS.md`/`.memory/PROGRESS.md`, при необходимости — `.memory/DECISIONS.md`.
+## 2) Рабочий журнал
+- До checkpoint все шаги записывай в `.memory/WORKLOG.md` (черновик).
+- После прохождения checkpoint (см. ниже) — синхронизируй `.memory/TASKS.md`, `.memory/PROGRESS.md`, при необходимости — `.memory/DECISIONS.md` и `.memory/ASKS.md`.
 
 ## 3) Канонический процесс (SDD)
 **Contracts → Tests → Code → ADR → Progress**
@@ -34,7 +31,7 @@
 2) Добавь/обнови unit + contract-тесты; прогон pre-commit чек-листа (см. CONTEXT).  
 3) Внеси минимально достаточные изменения кода.  
 4) Если принято архитектурное решение — ADR-запись в `.memory/DECISIONS.md`.  
-5) Обнови прогресс (после checkpoint): `.memory/PROGRESS.md` (1 строка), статус в `.memory/TASKS.md`.
+5) Обнови прогресс (после checkpoint): `.memory/PROGRESS.md` (1 строка), `.memory/ASKS.md` (фиксируй выполненный запрос) и статус в `.memory/TASKS.md`.
 
 ## 4) Checkpoints (минимум)
 Считается пройденным, если одновременно:
@@ -60,11 +57,11 @@
 Один PR — одна цель. Перед PR:
 - пройди pre-commit чек-лист (см. `.memory/CONTEXT.md`),  
 - проверь SemVer/Deprecation,  
-- синхронизируй ADR/PROGRESS/TASKS/INDEX.
+- синхронизируй ADR/ASKS/PROGRESS/TASKS/INDEX.
 
 ## 8) Антипаттерны (запрещено)
 - Менять публичные контракты без `contracts/*` и VERSION bump.  
-- Обходить LOCK и писать напрямую в TASKS/PROGRESS/ADR.  
+- Игнорировать синхронизацию `.memory/ASKS.md` и `.memory/PROGRESS.md` после завершения задачи.
 - Вносить «временные» костыли без ADR/срока удаления.  
 - Коммитить секреты/ключи; нарушать лицензионные условия.
 
