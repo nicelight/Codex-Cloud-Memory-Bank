@@ -9,11 +9,10 @@ memory:
   decisions: { count: 1, last_id: "ADR-0001", updated: "2025-10-08" }
   tasks: { updated: "2025-10-08" }
   progress: { updated: "2025-10-08" }
+  asks: { updated: "2025-10-08" }
   glossary: { updated: "2025-10-08" }
   autonomy: { updated: "2025-10-08" }
   usecases: { updated: "2025-10-08", count: 2 }
 reporting:
   schema: "REPORT_SCHEMA.json"
   template: "REPORT_TEMPLATE.md"
-locks:
-  active: false

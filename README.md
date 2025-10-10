@@ -1,6 +1,6 @@
 # Codex Cloud Agent + Memory Bank (optimized)
 
-Агент для Codex Cloud в стиле SDD: **Contracts → Tests → Code → ADR → Progress**, с расширенным мемори‑банком `.memory/` и строгими правилами автономности 0/1/2.
+Агент для Codex Cloud в стиле SDD: **Contracts → Tests → Code → ADR → Progress**, с расширенным мемори‑банком `.memory/` и гибкими правилами автономности (по умолчанию — уровень 2).
 
 ## Дерево проекта
 
@@ -10,6 +10,7 @@
 │   └── VERSION.json
 ├── AGENTS.md
 └── .memory/
+    ├── ASKS.md
     ├── AUTONOMY.md
     ├── CONTEXT.md
     ├── DECISIONS.md
@@ -26,46 +27,42 @@
 
 ## Как это работает — кратко
 
-1. Codex читает `AGENTS.md` и спрашивает степень автономности 0/1/2.
+1. Codex читает `AGENTS.md` и определяет режим автономности: если в запросе явно указан уровень 0/1 — следует ему, иначе работает в уровне 2.
 2. Читает `.memory/*` и `contracts/*`, следует ритуалу **Contracts → Tests → Code**.
-3. Создаёт `LOCK.taskId`, ведёт черновик шагов в `WORKLOG.md` до checkpoint.
+3. Ведёт черновик шагов в `WORKLOG.md` до checkpoint.
 4. Если меняются публичные интерфейсы — сначала правит `contracts/*` и версии в `contracts/VERSION.json` по SemVer.
-5. После checkpoint синхронизирует `TASKS.md`, `PROGRESS.md`, оформляет ADR в `DECISIONS.md`.
+5. После checkpoint синхронизирует `TASKS.md`, `ASKS.md`, `PROGRESS.md`, оформляет ADR в `DECISIONS.md`.
 6. Возвращает финальный ответ по шаблону `REPORT_TEMPLATE.md` и прикладывает `REPORT.json` по схеме `REPORT_SCHEMA.json`.
 
 ## Mermaid диаграмма процесса
 
 ```mermaid
 flowchart TB
-  A[Start] --> B[Ask autonomy 0-1-2]
+  A[Start] --> B[Check prompt for autonomy hints]
   B --> C[Read memory: MISSION - CONTEXT - TASKS - DECISIONS - USECASES]
   C --> D[Read contracts and VERSION]
-  D --> E{LOCK exists}
-  E -- no --> F[Create LOCK for task]
-  E -- yes --> G[Write only to WORKLOG and stop sync]
-  F --> H[Work in WORKLOG]
-  H --> I{Trigger thresholds from AUTONOMY}
-  I -- yes --> J[Ask user for consent]
-  I -- no --> K[Proceed]
-  J --> K
-  K --> L[Update contracts first]
-  L --> M[Add - update tests]
-  M --> N[Change code minimal]
-  N --> O{Checkpoint passed}
-  O -- no --> H
-  O -- yes --> P[Sync TASKS and PROGRESS]
-  P --> Q[Add ADR if needed]
-  Q --> R[Generate REPORT text]
-  R --> S[Generate REPORT.json per schema]
-  S --> T[Remove LOCK]
-  T --> U[Done]
+  D --> E[Work in WORKLOG]
+  E --> F{Trigger thresholds from AUTONOMY}
+  F -- yes --> G[Ask user for consent]
+  F -- no --> H[Proceed]
+  G --> H
+  H --> I[Update contracts first]
+  I --> J[Add - update tests]
+  J --> K[Change code minimal]
+  K --> L{Checkpoint passed}
+  L -- no --> E
+  L -- yes --> M[Sync TASKS, ASKS and PROGRESS]
+  M --> N[Add ADR if needed]
+  N --> O[Generate REPORT text]
+  O --> P[Generate REPORT.json per schema]
+  P --> Q[Done]
 ```
 
 ## Быстрый чек‑лист
 
-* Перед началом: спроси автономность, прочитай `.memory/*` и `contracts/*`.
+* Перед началом: определи автономность (по умолчанию — 2), прочитай `.memory/*` и `contracts/*`.
 * Любые изменения публичных интерфейсов — сначала `contracts/*` и SemVer.
-* До checkpoint пиши только в `WORKLOG.md`; после — синхронизируй канбан и прогресс.
+* До checkpoint пиши только в `WORKLOG.md`; после — синхронизируй `TASKS.md`, `ASKS.md` и `PROGRESS.md`.
 * Всегда формируй финальный отчёт: текст + `REPORT.json`.
 
 ## Политика PR (сверхкратко)
