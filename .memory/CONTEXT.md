@@ -30,11 +30,16 @@ owner: techlead
 - Error budgets/latency цели: …
 - Security: no secrets in VCS, SAST/DAST при необходимости
 
+## Архитектурные решения
+- Полные ADR живут в `spec/adr/ADR-XXXX.md` (Markdown с front matter).
+- `.memory/DECISIONS.md` — индекс и чек-лист синхронизации ADR.
+- При изменении статуса ADR обновляй оба артефакта и `INDEX.yaml`.
+
 ## Deprecation policy
 - SemVer: MAJOR — breaking; MINOR — новые фичи без ломаний; PATCH — фиксы/доки.
 - Любая устаревающая часть API получает notice (минимум один MINOR цикл).
-- Миграции и сроки снятия — фиксировать в `contracts/VERSION.json` и ADR.
+- Миграции и сроки снятия — фиксировать в `spec/contracts/VERSION.json` и ADR.
 
 ## Секреты/лицензии
-- DO NOT COMMIT: ключи/токены, приватные артефакты.  
+- DO NOT COMMIT: ключи/токены, приватные артефакты.
 - Проверка лицензий зависимостей перед PR.
