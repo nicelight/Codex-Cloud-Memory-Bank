@@ -6,8 +6,13 @@
 
 ```text
 .
-├── contracts/
-│   └── VERSION.json
+├── spec/
+│   ├── contracts/
+│   │   └── VERSION.json
+│   ├── adr/
+│   │   └── ADR-0001.md
+│   └── docs/
+│       └── blueprints/
 ├── AGENTS.md
 └── .memory/
     ├── ASKS.md
@@ -25,13 +30,15 @@
     └── WORKLOG.md
 ```
 
+`spec/adr/` — каноничное хранилище ADR (архитектурных решений). `spec/docs/blueprints/` хранит схемы и макеты, на которые могут ссылаться ADR и контракты.
+
 ## Как это работает — кратко
 
 1. Codex читает `AGENTS.md` и определяет режим автономности: если в запросе явно указан уровень 0/1 — следует ему, иначе работает в уровне 2.
-2. Читает `.memory/*` и `contracts/*`, следует ритуалу **Contracts → Tests → Code**.
+2. Читает `.memory/*`, `spec/contracts/*` и `spec/adr/*`, следует ритуалу **Contracts → Tests → Code**.
 3. Ведёт черновик шагов в `WORKLOG.md` до checkpoint.
-4. Если меняются публичные интерфейсы — сначала правит `contracts/*` и версии в `contracts/VERSION.json` по SemVer.
-5. После checkpoint синхронизирует `TASKS.md`, `ASKS.md`, `PROGRESS.md`, оформляет ADR в `DECISIONS.md`.
+4. Если меняются публичные интерфейсы — сначала правит `spec/contracts/*` и версии в `spec/contracts/VERSION.json` по SemVer.
+5. После checkpoint синхронизирует `TASKS.md`, `ASKS.md`, `PROGRESS.md`; оформляет ADR в `spec/adr/ADR-XXXX.md` и обновляет индекс `.memory/DECISIONS.md`.
 6. Возвращает финальный ответ по шаблону `REPORT_TEMPLATE.md` и прикладывает `REPORT.json` по схеме `REPORT_SCHEMA.json`.
 
 ## Mermaid диаграмма процесса
@@ -40,13 +47,13 @@
 flowchart TB
   A[Start] --> B[Check prompt for autonomy hints]
   B --> C[Read memory: MISSION - CONTEXT - TASKS - DECISIONS - USECASES]
-  C --> D[Read contracts and VERSION]
+  C --> D[Read spec/contracts and VERSION]
   D --> E[Work in WORKLOG]
   E --> F{Trigger thresholds from AUTONOMY}
   F -- yes --> G[Ask user for consent]
   F -- no --> H[Proceed]
   G --> H
-  H --> I[Update contracts first]
+  H --> I[Update spec/contracts first]
   I --> J[Add - update tests]
   J --> K[Change code minimal]
   K --> L{Checkpoint passed}
@@ -60,9 +67,9 @@ flowchart TB
 
 ## Быстрый чек‑лист
 
-* Перед началом: определи автономность (по умолчанию — 2), прочитай `.memory/*` и `contracts/*`.
-* Любые изменения публичных интерфейсов — сначала `contracts/*` и SemVer.
-* До checkpoint пиши только в `WORKLOG.md`; после — синхронизируй `TASKS.md`, `ASKS.md` и `PROGRESS.md`.
+* Перед началом: определи автономность (по умолчанию — 2), прочитай `.memory/*`, `spec/contracts/*` и `spec/adr/*`.
+* Любые изменения публичных интерфейсов — сначала `spec/contracts/*` и SemVer.
+* До checkpoint пиши только в `WORKLOG.md`; после — синхронизируй `TASKS.md`, `ASKS.md`, `PROGRESS.md`, ADR в `spec/adr/` и индекс `.memory/DECISIONS.md`.
 * Всегда формируй финальный отчёт: текст + `REPORT.json`.
 
 ## Политика PR (сверхкратко)
