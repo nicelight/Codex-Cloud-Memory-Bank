@@ -2,6 +2,7 @@
 
 Агент для Codex Cloud в стиле SDD: **Contracts → Tests → Code → ADR → Progress**, с расширенным мемори‑банком `.memory/` и гибкими правилами автономности (по умолчанию — уровень 2).
 
+![Agent](.memory/mozg.png)
 
 ## Первый старт и вокрфлоу
 
