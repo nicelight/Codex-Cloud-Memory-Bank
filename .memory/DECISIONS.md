@@ -4,15 +4,28 @@ updated: 2025-10-08
 canonical_store: spec/adr
 ---
 
-# Индекс архитектурных решений (ADR)
+# ADR-lite
 
-Полные ADR перешли из `.memory/DECISIONS.md` в каталог `spec/adr/`. Этот файл остаётся индексом и чек-листом синхронизации.
+## [2025-10-08] ADR-0001: Пример решения
+status: accepted
+supersedes: []
+superseded_by: null
+context: "Кратко: зачем потребовалось решение"
+decision: "Что выбрано и почему"
+alternatives:
+  - "Вариант A — почему не взяли"
+  - "Вариант B — почему не взяли"
+consequences: "Плюсы/минусы, миграции, стоимость"
+links:
+  - pr: "#123"
+  - contracts: "VERSION.json@0.2.0"
+  - docs: "…"
 
 ## Активные решения
 
 | ID | Статус | Файл | Кратко |
 | --- | --- | --- | --- |
-| ADR-0001 | accepted | `spec/adr/ADR-0001.md` | Пример решения — шаблон записи |
+| ADR-0001 | accepted | `spec/adr/del.me | Создан для проверки |
 
 ## Процесс обновления
 
